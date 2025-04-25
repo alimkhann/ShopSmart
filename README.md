@@ -1,0 +1,2 @@
+# ShopSmart
+Collaborative Shopping Lists
