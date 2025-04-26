@@ -10,8 +10,6 @@ import FirebaseAuth
 
 @MainActor
 final class ProfileSettingsSheetViewModel: ObservableObject {
-    
-    
     func logOut() throws {
         try AuthenticationManager.shared.signOut()
     }

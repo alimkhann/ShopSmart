@@ -20,6 +20,22 @@ struct PrimaryButtonStyleView: View {
     }
 }
 
+struct SecondaryButtonStyleView: View {
+    let content: String
+    
+    var body: some View {
+        Text(content)
+            .foregroundStyle(Color.primary)
+            .fontWeight(.medium)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.primary, lineWidth: 2)
+            )
+    }
+}
+
 #Preview {
     PrimaryButtonStyleView(content: "test")
 }

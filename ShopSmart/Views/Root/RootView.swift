@@ -8,8 +8,32 @@
 import SwiftUI
 
 struct RootView: View {
+    
+    @State var showAuthenticationView: Bool = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            NavigationStack {
+                MainView(showAuthenticationView: $showAuthenticationView)
+            }
+        }
+        .onAppear() {
+            checkAuthStatus()
+        }
+        .fullScreenCover(isPresented: $showAuthenticationView) {
+            NavigationStack {
+                AuthenticationView(showAuthenticationView: $showAuthenticationView)
+            }
+        }
+    }
+    
+    private func checkAuthStatus() {
+        do {
+            _ = try AuthenticationManager.shared.getAuthenticatedUser()
+            showAuthenticationView = false
+        } catch {
+            showAuthenticationView = true
+        }
     }
 }
 

@@ -7,12 +7,84 @@
 
 import SwiftUI
 
+@MainActor
+final class SignInViewModel: ObservableObject {
+    @Published var email = ""
+    @Published var password = ""
+    
+    func signIn() async throws {
+        guard !email.isEmpty, !password.isEmpty else {
+            print("No email or password provided.")
+            return
+        }
+        
+        try await AuthenticationManager.shared.signIn(email: email, password: password)
+    }
+}
+
 struct SignInView: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
+    @StateObject private var viewModel = SignInViewModel()
+    @Binding var showAuthenticationView: Bool
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView {
+            VStack {
+                VStack(spacing: 16) {
+                    Text("🛒")
+                        .font(.system(size: 80))
+                        .padding(.bottom, 8)
+                    
+                    Text("ShopSmart")
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
+                }
+                .padding(.bottom, 36)
+                
+                Text("Sign In")
+                    .font(.system(size: 20))
+                    .fontWeight(.semibold)
+                    .padding(.bottom, 24)
+                
+                VStack(spacing: 16) {
+                    CustomTextField(placeholder: "email", text: $viewModel.email)
+                    
+                    CustomTextField(placeholder: "password", text: $viewModel.password, isSecure: true)
+                    
+                    Button(action: {
+                        Task {
+                            do {
+                                try await viewModel.signIn()
+                                showAuthenticationView = false
+                            } catch {
+                                
+                            }
+                        }
+                    }) {
+                        PrimaryButtonStyleView(content: "Sign In")
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(.top, 64)
+        .padding(.horizontal, 24)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: {
+            self.presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack {
+                Image(systemName: "chevron.left")
+                    .foregroundStyle(Color.primary)
+            }
+        })
     }
 }
 
 #Preview {
-    SignInView()
+    NavigationStack {
+        SignInView(showAuthenticationView: .constant(false))
+    }
 }

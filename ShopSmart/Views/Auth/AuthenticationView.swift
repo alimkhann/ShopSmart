@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct AuthenticationView: View {
+    
+    @Binding var showAuthenticationView: Bool
+    
     var body: some View {
         VStack {
             VStack(spacing: 16) {
@@ -28,11 +31,15 @@ struct AuthenticationView: View {
             Spacer()
             
             VStack(spacing: 16) {
-                NavigationLink(destination: SignUpView()) {
+                NavigationLink {
+                    SignUpView(showAuthenticationView: $showAuthenticationView)
+                } label: {
                     PrimaryButtonStyleView(content: "Get Started")
                 }
                 
-                NavigationLink(destination: SignInView()) {
+                NavigationLink {
+                    SignInView(showAuthenticationView: $showAuthenticationView)
+                } label: {
                     SecondaryButtonStyleView(content: "I already have an account")
                 }
             }
@@ -46,5 +53,5 @@ struct AuthenticationView: View {
 }
 
 #Preview {
-    AuthenticationView()
+    AuthenticationView(showAuthenticationView: .constant(false))
 }

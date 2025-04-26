@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		474CE55A2DBBE95C00BE66B9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 474CE5592DBBE95C00BE66B9 /* FirebaseAuth */; };
+		474CE55C2DBBE95C00BE66B9 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 474CE55B2DBBE95C00BE66B9 /* FirebaseCore */; };
+		474CE55E2DBBE95C00BE66B9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 474CE55D2DBBE95C00BE66B9 /* FirebaseFirestore */; };
+		474CE5A72DBCFA1500BE66B9 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 474CE5A62DBCFA1500BE66B9 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		474CE4C72DBBC30F00BE66B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,20 +36,79 @@
 		474CE4D02DBBC30F00BE66B9 /* ShopSmartUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShopSmartUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		474CE5302DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmart" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShopSmartUITests.swift,
+				ShopSmartUITestsLaunchTests.swift,
+			);
+			target = 474CE4B52DBBC30D00BE66B9 /* ShopSmart */;
+		};
+		474CE5312DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmartUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShopSmartUITests.swift,
+				ShopSmartUITestsLaunchTests.swift,
+			);
+			target = 474CE4CF2DBBC30F00BE66B9 /* ShopSmartUITests */;
+		};
+		474CE53F2DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmart" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShopSmartTests.swift,
+			);
+			target = 474CE4B52DBBC30D00BE66B9 /* ShopSmart */;
+		};
+		474CE5402DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmartTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShopSmartTests.swift,
+			);
+			target = 474CE4C52DBBC30F00BE66B9 /* ShopSmartTests */;
+		};
+		474CE5562DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Resources/GoogleService-Info.plist",
+			);
+			target = 474CE4C52DBBC30F00BE66B9 /* ShopSmartTests */;
+		};
+		474CE5572DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Resources/GoogleService-Info.plist",
+			);
+			target = 474CE4CF2DBBC30F00BE66B9 /* ShopSmartUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		474CE4B82DBBC30D00BE66B9 /* ShopSmart */ = {
+		474CE5172DBBCA1A00BE66B9 /* ShopSmart */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				474CE5562DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartTests" target */,
+				474CE5572DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartUITests" target */,
+			);
 			path = ShopSmart;
 			sourceTree = "<group>";
 		};
-		474CE4C92DBBC30F00BE66B9 /* ShopSmartTests */ = {
+		474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ShopSmartTests;
+			exceptions = (
+				474CE5302DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmart" target */,
+				474CE5312DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmartUITests" target */,
+			);
+			path = ShopSmartUITests;
 			sourceTree = "<group>";
 		};
-		474CE4D32DBBC30F00BE66B9 /* ShopSmartUITests */ = {
+		474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ShopSmartUITests;
+			exceptions = (
+				474CE53F2DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmart" target */,
+				474CE5402DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmartTests" target */,
+			);
+			path = ShopSmartTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +118,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				474CE55C2DBBE95C00BE66B9 /* FirebaseCore in Frameworks */,
+				474CE5A72DBCFA1500BE66B9 /* FirebaseStorage in Frameworks */,
+				474CE55A2DBBE95C00BE66B9 /* FirebaseAuth in Frameworks */,
+				474CE55E2DBBE95C00BE66B9 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,9 +145,9 @@
 		474CE4AD2DBBC30D00BE66B9 = {
 			isa = PBXGroup;
 			children = (
-				474CE4B82DBBC30D00BE66B9 /* ShopSmart */,
-				474CE4C92DBBC30F00BE66B9 /* ShopSmartTests */,
-				474CE4D32DBBC30F00BE66B9 /* ShopSmartUITests */,
+				474CE5172DBBCA1A00BE66B9 /* ShopSmart */,
+				474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */,
+				474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */,
 				474CE4B72DBBC30D00BE66B9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,10 +178,16 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				474CE4B82DBBC30D00BE66B9 /* ShopSmart */,
+				474CE5172DBBCA1A00BE66B9 /* ShopSmart */,
+				474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */,
+				474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */,
 			);
 			name = ShopSmart;
 			packageProductDependencies = (
+				474CE5592DBBE95C00BE66B9 /* FirebaseAuth */,
+				474CE55B2DBBE95C00BE66B9 /* FirebaseCore */,
+				474CE55D2DBBE95C00BE66B9 /* FirebaseFirestore */,
+				474CE5A62DBCFA1500BE66B9 /* FirebaseStorage */,
 			);
 			productName = ShopSmart;
 			productReference = 474CE4B62DBBC30D00BE66B9 /* ShopSmart.app */;
@@ -129,9 +205,6 @@
 			);
 			dependencies = (
 				474CE4C82DBBC30F00BE66B9 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				474CE4C92DBBC30F00BE66B9 /* ShopSmartTests */,
 			);
 			name = ShopSmartTests;
 			packageProductDependencies = (
@@ -152,9 +225,6 @@
 			);
 			dependencies = (
 				474CE4D22DBBC30F00BE66B9 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				474CE4D32DBBC30F00BE66B9 /* ShopSmartUITests */,
 			);
 			name = ShopSmartUITests;
 			packageProductDependencies = (
@@ -195,6 +265,9 @@
 			);
 			mainGroup = 474CE4AD2DBBC30D00BE66B9;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 474CE4B72DBBC30D00BE66B9 /* Products */;
 			projectDirPath = "";
@@ -395,15 +468,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ShopSmart/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShopSmart/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = M5YPTF3F3J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -424,15 +497,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ShopSmart/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShopSmart/Resources/Preview Content\"";
 				DEVELOPMENT_TEAM = M5YPTF3F3J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -558,6 +631,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		474CE5592DBBE95C00BE66B9 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		474CE55B2DBBE95C00BE66B9 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		474CE55D2DBBE95C00BE66B9 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		474CE5A62DBCFA1500BE66B9 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 474CE5582DBBE95C00BE66B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 474CE4AE2DBBC30D00BE66B9 /* Project object */;
 }

@@ -8,11 +8,24 @@
 import SwiftUI
 
 struct CustomTextField: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    var placeholder: String
+    @Binding var text: String
+    var isSecure: Bool = false
 
-#Preview {
-    CustomTextField()
+    var body: some View {
+        Group {
+            if isSecure {
+                SecureField(placeholder, text: $text)
+            } else {
+                TextField(placeholder, text: $text)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.leading, 8)
+        .frame(height: 44)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(UIColor.placeholderText), lineWidth: 2)
+        )
+    }
 }
