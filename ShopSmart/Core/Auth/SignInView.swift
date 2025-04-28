@@ -7,27 +7,10 @@
 
 import SwiftUI
 
-@MainActor
-final class SignUpViewModel: ObservableObject {
-    @Published var username = ""
-    @Published var email = ""
-    @Published var password = ""
-    
-    func signUp() async throws {
-        guard !username.isEmpty, !email.isEmpty, !password.isEmpty else {
-            print("No username, email, or password provided.")
-            return
-        }
-        
-        
-        try await AuthenticationManager.shared.signUp(username: username, email: email, password: password)
-    }
-}
-
-struct SignUpView: View {
+struct SignInView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @StateObject private var viewModel = SignUpViewModel()
+    @StateObject private var viewModel = SignInViewModel()
     @Binding var showAuthenticationView: Bool
     
     var body: some View {
@@ -44,14 +27,12 @@ struct SignUpView: View {
                 }
                 .padding(.bottom, 36)
                 
-                Text("Sign Up")
+                Text("Sign In")
                     .font(.system(size: 20))
                     .fontWeight(.semibold)
                     .padding(.bottom, 24)
                 
                 VStack(spacing: 16) {
-                    CustomTextField(placeholder: "username", text: $viewModel.username)
-                    
                     CustomTextField(placeholder: "email", text: $viewModel.email)
                     
                     CustomTextField(placeholder: "password", text: $viewModel.password, isSecure: true)
@@ -59,15 +40,26 @@ struct SignUpView: View {
                     Button(action: {
                         Task {
                             do {
-                                try await viewModel.signUp()
+                                try await viewModel.signIn()
                                 showAuthenticationView = false
                             } catch {
                                 print(error)
                             }
                         }
                     }) {
-                        PrimaryButtonStyleView(content: "Sign Up")
+                        if viewModel.isSigningIn {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Sign In")
+                        }
                     }
+                    .disabled(viewModel.isSigningIn)
+                    .foregroundStyle(.background)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(viewModel.isSigningIn ? Color.gray : Color.primary)
+                    .cornerRadius(8)
                 }
                 
                 Spacer()
@@ -87,7 +79,8 @@ struct SignUpView: View {
     }
 }
 
-
 #Preview {
-    SignUpView(showAuthenticationView: .constant(false))
+    NavigationStack {
+        SignInView(showAuthenticationView: .constant(false))
+    }
 }

@@ -8,20 +8,6 @@
 import Foundation
 import FirebaseAuth
 
-struct AuthDataResultModel {
-    let uid: String
-    let username: String?
-    let email: String?
-    let photoUrl: String?
-    
-    init(user: User) {
-        self.username = user.displayName
-        self.uid = user.uid
-        self.email = user.email
-        self.photoUrl = user.photoURL?.absoluteString
-    }
-}
-
 final class AuthenticationManager {
     
     static let shared = AuthenticationManager()
@@ -37,11 +23,15 @@ final class AuthenticationManager {
     
     @discardableResult
     func signUp(username: String, email: String, password: String) async throws -> AuthDataResultModel {
-        let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        let authDataResult  = try await Auth.auth().createUser(withEmail: email, password: password)
         
         let changeRequest = authDataResult.user.createProfileChangeRequest()
         changeRequest.displayName = username
         try await changeRequest.commitChanges()
+        
+        let model = AuthDataResultModel(user: authDataResult.user)
+        let user = UserModel(auth: model)
+        try await UserManager.shared.createNewUser(user: user)
         
         return AuthDataResultModel(user: authDataResult.user)
     }

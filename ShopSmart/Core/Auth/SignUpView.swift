@@ -7,25 +7,10 @@
 
 import SwiftUI
 
-@MainActor
-final class SignInViewModel: ObservableObject {
-    @Published var email = ""
-    @Published var password = ""
-    
-    func signIn() async throws {
-        guard !email.isEmpty, !password.isEmpty else {
-            print("No email or password provided.")
-            return
-        }
-        
-        try await AuthenticationManager.shared.signIn(email: email, password: password)
-    }
-}
-
-struct SignInView: View {
+struct SignUpView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @StateObject private var viewModel = SignInViewModel()
+    @StateObject private var viewModel = SignUpViewModel()
     @Binding var showAuthenticationView: Bool
     
     var body: some View {
@@ -42,12 +27,14 @@ struct SignInView: View {
                 }
                 .padding(.bottom, 36)
                 
-                Text("Sign In")
+                Text("Sign Up")
                     .font(.system(size: 20))
                     .fontWeight(.semibold)
                     .padding(.bottom, 24)
                 
                 VStack(spacing: 16) {
+                    CustomTextField(placeholder: "username", text: $viewModel.username)
+                    
                     CustomTextField(placeholder: "email", text: $viewModel.email)
                     
                     CustomTextField(placeholder: "password", text: $viewModel.password, isSecure: true)
@@ -55,15 +42,26 @@ struct SignInView: View {
                     Button(action: {
                         Task {
                             do {
-                                try await viewModel.signIn()
+                                try await viewModel.signUp()
                                 showAuthenticationView = false
                             } catch {
-                                
+                                print(error)
                             }
                         }
                     }) {
-                        PrimaryButtonStyleView(content: "Sign In")
+                        if viewModel.isSigningUp {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Sign Up")
+                        }
                     }
+                    .disabled(viewModel.isSigningUp)
+                    .foregroundStyle(.background)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(viewModel.isSigningUp ? Color.gray : Color.primary)
+                    .cornerRadius(8)
                 }
                 
                 Spacer()
@@ -83,8 +81,7 @@ struct SignInView: View {
     }
 }
 
+
 #Preview {
-    NavigationStack {
-        SignInView(showAuthenticationView: .constant(false))
-    }
+    SignUpView(showAuthenticationView: .constant(false))
 }
