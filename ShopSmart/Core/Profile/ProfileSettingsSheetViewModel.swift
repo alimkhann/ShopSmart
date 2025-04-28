@@ -11,27 +11,30 @@ import PhotosUI
 @MainActor
 final class ProfileSettingsSheetViewModel: ObservableObject {
     @Published private(set) var user: UserModel? = nil
+    @AppStorage("cachedUsername") private var cachedUsername: String = ""
     @Published var isUpdating = false
     @Published var isUploadingImage = false
     @Published var pendingImageData: Data? = nil
     @Published var pendingUsername: String? = nil
-
+    
     var canSaveAll: Bool {
         let nameChanged = pendingUsername != nil && pendingUsername != user?.username
         let imageChanged = pendingImageData != nil
         return !isUpdating && !isUploadingImage && (nameChanged || imageChanged)
     }
-
+    
     func loadCurrentUser() async {
         do {
+            pendingUsername = cachedUsername
+            
             let auth = try AuthenticationManager.shared.getAuthenticatedUser()
             self.user = try await UserManager.shared.getUser(userId: auth.userId)
-            self.pendingUsername = user?.username
+            self.pendingUsername = cachedUsername
         } catch {
             print("Load user failed: \(error)")
         }
     }
-
+    
     func imagePicked(_ item: PhotosPickerItem) async {
         do {
             guard let data = try await item.loadTransferable(type: Data.self) else { return }
@@ -77,6 +80,7 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             isUpdating = true; defer { isUpdating = false }
             do {
                 try await UserManager.shared.updateUsername(userId: user.userId, username: newName)
+                cachedUsername = newName
             } catch {
                 print("Username update failed: \(error)")
             }
@@ -93,9 +97,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             }
         }
     }
-
+    
     func deleteProfileImage() async {
         guard let user = user, let path = user.profileImagePath else { return }
+        
         do {
             try await StorageManager.shared.deleteImage(path: path)
             try await UserManager.shared.updateUserProfileImagePath(userId: user.userId, path: nil, url: nil)
@@ -105,17 +110,19 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             print("Delete failed: \(error)")
         }
     }
-
+    
     func logOut() throws {
         try AuthenticationManager.shared.signOut()
     }
-
+    
     func deleteAccount() async throws {
         guard let user = user else { throw URLError(.badServerResponse) }
-        // delete profile image from storage
+        
+        // delete pfp from storage
         if let path = user.profileImagePath {
             try await StorageManager.shared.deleteImage(path: path)
         }
+        
         try await UserManager.shared.deleteUser(userId: user.userId)
         try await AuthenticationManager.shared.deleteAccount()
     }

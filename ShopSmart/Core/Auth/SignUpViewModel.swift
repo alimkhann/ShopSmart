@@ -5,10 +5,11 @@
 //  Created by Alimkhan Yergebayev on 27/4/2025.
 //
 
-import Foundation
+import SwiftUI
 
 @MainActor
 final class SignUpViewModel: ObservableObject {
+    @AppStorage("cachedUsername") private var cachedUsername: String = ""
     @Published var username = ""
     @Published var email = ""
     @Published var password = ""
@@ -31,5 +32,7 @@ final class SignUpViewModel: ObservableObject {
         )
         let user = UserModel(auth: authDataResult)
         try await UserManager.shared.createNewUser(user: user)
+        
+        cachedUsername = username
     }
 }

@@ -14,8 +14,6 @@ struct ProfileSettingsSheetView: View {
     @State private var selectedItem: PhotosPickerItem? = nil
     @Binding var showAuthenticationView: Bool
     @Environment(\.dismiss) private var dismiss
-    @State private var showErrorAlert = false
-    @State private var errorMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -91,11 +89,6 @@ struct ProfileSettingsSheetView: View {
             }
             .padding()
             .task { await viewModel.loadCurrentUser() }
-            .alert("Error", isPresented: $showErrorAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(errorMessage)
-            }
             .navigationTitle("Profile Settings")
         }
     }
