@@ -36,23 +36,7 @@ final class UserManager {
     }
     
     func getUser(userId: String) async throws -> UserModel {
-        do {
-            let document = try await userDocument(userId: userId).getDocument()
-            
-            // Check if document exists
-            guard document.exists else {
-                print("🚨 User document does not exist for userId: \(userId)")
-                throw URLError(.badServerResponse)
-            }
-            
-            // Attempt to decode the document
-            let user = try document.data(as: UserModel.self, decoder: decoder)
-            return user
-        } catch {
-            print("🚨 Error fetching user document for userId: \(userId)")
-            print("Error details: \(error.localizedDescription)")
-            throw error
-        }
+        try await userDocument(userId: userId).getDocument(as: UserModel.self, decoder: decoder)
     }
     
     func updateUserProfileImagePath(userId: String, path: String?, url: String?) async throws {
