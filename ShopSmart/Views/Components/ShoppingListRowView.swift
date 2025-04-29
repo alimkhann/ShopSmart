@@ -35,38 +35,37 @@ struct ShoppingListRowView: View {
                     Text("\(vm.nOfItems) items")
                         .font(.system(size: 12))
                     
-                    Text("•")
-                        .font(.system(size: 12))
-                    
-                    HStack(alignment: .center, spacing: -8) {
-                        ForEach(vm.collaboratorAvatars, id: \.self) { url in
-                            AsyncImage(url: url) { img in
-                                img.resizable()
-                                    .frame(width:32, height:32)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                Circle().fill(Color.gray).frame(width:32, height:32)
-                            }
-                            .frame(width:24, height:24)
-                            .clipShape(Circle())
-                        }
-                    }
-                    .padding(0)
+                    //                    Text("•")
+                    //                        .font(.system(size: 12))
+                    //
+                    //                    HStack(alignment: .center, spacing: -8) {
+                    //                        ForEach(vm.collaboratorAvatars, id: \.self) { url in
+                    //                            AsyncImage(url: url) { img in
+                    //                                img.resizable()
+                    //                                    .frame(width:32, height:32)
+                    //                                    .clipShape(Circle())
+                    //                            } placeholder: {
+                    //                                Circle().fill(Color.gray).frame(width:32, height:32)
+                    //                            }
+                    //                            .frame(width:24, height:24)
+                    //                            .clipShape(Circle())
+                    //                        }
+                    //                    }
+                    //                    .padding(0)
                 }
             }
             
             Spacer()
             
-            Button(action: {}) {
-                HStack(alignment: .center, spacing: 10) {
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(Color.primary)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(Color(red: 0.94, green: 0.94, blue: 0.94).opacity(0.5))
-                .cornerRadius(4)
+            HStack(alignment: .center, spacing: 10) {
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(Color.primary)
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Color(red: 0.94, green: 0.94, blue: 0.94).opacity(0.5))
+            .cornerRadius(4)
+            
         }
         .padding(.leading, 4)
         .padding(.trailing, 8)

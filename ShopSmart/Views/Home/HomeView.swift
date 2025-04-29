@@ -13,7 +13,7 @@ struct HomeView: View {
     
     @Binding var showAuthenticationView: Bool
     @State private var showProfileSettingsSheetView = false
-    @State private var showShoppingListSheetView = false
+    @State private var selectedListRow: ShoppingListRowViewModel? = nil
     @State private var showCreateShoppingListSheetView = false
     @State private var searchText = ""
     
@@ -25,7 +25,7 @@ struct HomeView: View {
                         ForEach(listsVM.lists.map { ShoppingListRowViewModel(model: $0) }) { rowVM in
                             ShoppingListRowView(vm: rowVM)
                                 .onTapGesture {
-                                    showShoppingListSheetView = true
+                                    selectedListRow = rowVM
                                 }
                         }
                     }
@@ -63,6 +63,12 @@ struct HomeView: View {
             } message: {
                 Text(listsVM.errorMessage ?? "")
             }
+            .sheet(item: $selectedListRow, onDismiss: {
+                Task { await listsVM.loadLists() }
+            }) { rowVM in
+                ShoppingListSheetView(rowVM: rowVM)
+                  .presentationDetents([.large, .medium])
+            }
             .sheet(
                 isPresented: $showCreateShoppingListSheetView,
                 onDismiss: {
@@ -70,7 +76,7 @@ struct HomeView: View {
                 }
             ) {
                 CreateShoppingListSheetView()
-                    .presentationDetents([.fraction(0.2)])
+                    .presentationDetents([.fraction(0.35)])
             }
             .sheet(
                 isPresented: $showProfileSettingsSheetView,

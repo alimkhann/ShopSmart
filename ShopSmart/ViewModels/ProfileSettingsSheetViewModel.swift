@@ -50,7 +50,7 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             print("Image load failed: \(error)")
         }
     }
-
+    
     func saveAllChanges() async {
         // 1) delete old image if replacing
         if let user = user,
@@ -131,8 +131,7 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             let items = try await ShoppingListsManager.shared.getItems(listId: listId)
             
             for item in items {
-                let itemId = item.itemId
-                
+                guard let itemId = item.id else { continue }
                 try await ShoppingListsManager.shared.deleteItem(itemId: itemId, listId: listId)
             }
             

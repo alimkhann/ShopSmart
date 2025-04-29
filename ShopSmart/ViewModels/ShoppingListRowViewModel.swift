@@ -26,23 +26,23 @@ final class ShoppingListRowViewModel: ObservableObject, Identifiable {
         self.date = model.dateCreated
         self.nOfItems = model.numberOfItems
         self.collaborators = model.collaborators
-        loadAvatars()
+//        loadAvatars()
     }
     
-    private func loadAvatars() {
-        Task {
-            var urls: [URL] = []
-            for uid in collaborators {
-                do {
-                    let user = try await userManager.getUser(userId: uid)
-                    if let s = user.profileImagePathUrl, let url = URL(string: s) {
-                        urls.append(url)
-                    }
-                } catch {
-                    print("Avatar load failed for \(uid): \(error)")
-                }
-            }
-            self.collaboratorAvatars = urls
-        }
-    }
+//    private func loadAvatars() {
+//        Task {
+//            var urls: [URL] = []
+//            for uid in collaborators {
+//                do {
+//                    let user = try await userManager.getUser(userId: uid)
+//                    if let s = user.profileImagePathUrl, let url = URL(string: s) {
+//                        urls.append(url)
+//                    }
+//                } catch {
+//                    print("Avatar load failed for \(uid): \(error)")
+//                }
+//            }
+//            self.collaboratorAvatars = urls
+//        }
+//    }
 }
