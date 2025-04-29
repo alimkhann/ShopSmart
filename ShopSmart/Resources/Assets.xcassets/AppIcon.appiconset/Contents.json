@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "ChatGPT Image Apr 26 2025 from iOS App Dev Plan.png",
+      "filename" : "iconLight.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "ChatGPT Image Apr 26 2025 from iOS App Dev Plan (1).png",
+      "filename" : "iconDark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

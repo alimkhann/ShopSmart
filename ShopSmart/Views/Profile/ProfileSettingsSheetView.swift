@@ -34,7 +34,7 @@ struct ProfileSettingsSheetView: View {
                 }
                 
                 CustomTextField(
-                    placeholder: "Username",
+                    placeholder: "username",
                     text: Binding(
                         get: { viewModel.pendingUsername ?? viewModel.user?.username ?? "" },
                         set: { viewModel.pendingUsername = $0 }

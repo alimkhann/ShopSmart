@@ -37,36 +37,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		474CE5302DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmart" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ShopSmartUITests.swift,
-				ShopSmartUITestsLaunchTests.swift,
-			);
-			target = 474CE4B52DBBC30D00BE66B9 /* ShopSmart */;
-		};
-		474CE5312DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmartUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ShopSmartUITests.swift,
-				ShopSmartUITestsLaunchTests.swift,
-			);
-			target = 474CE4CF2DBBC30F00BE66B9 /* ShopSmartUITests */;
-		};
-		474CE53F2DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmart" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ShopSmartTests.swift,
-			);
-			target = 474CE4B52DBBC30D00BE66B9 /* ShopSmart */;
-		};
-		474CE5402DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmartTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ShopSmartTests.swift,
-			);
-			target = 474CE4C52DBBC30F00BE66B9 /* ShopSmartTests */;
-		};
 		474CE5562DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -91,24 +61,6 @@
 				474CE5572DBBE6A100BE66B9 /* Exceptions for "ShopSmart" folder in "ShopSmartUITests" target */,
 			);
 			path = ShopSmart;
-			sourceTree = "<group>";
-		};
-		474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				474CE5302DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmart" target */,
-				474CE5312DBBCB4500BE66B9 /* Exceptions for "ShopSmartUITests" folder in "ShopSmartUITests" target */,
-			);
-			path = ShopSmartUITests;
-			sourceTree = "<group>";
-		};
-		474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				474CE53F2DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmart" target */,
-				474CE5402DBBCB5C00BE66B9 /* Exceptions for "ShopSmartTests" folder in "ShopSmartTests" target */,
-			);
-			path = ShopSmartTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -146,8 +98,6 @@
 			isa = PBXGroup;
 			children = (
 				474CE5172DBBCA1A00BE66B9 /* ShopSmart */,
-				474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */,
-				474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */,
 				474CE4B72DBBC30D00BE66B9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -179,8 +129,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				474CE5172DBBCA1A00BE66B9 /* ShopSmart */,
-				474CE52D2DBBCB4500BE66B9 /* ShopSmartUITests */,
-				474CE53D2DBBCB5C00BE66B9 /* ShopSmartTests */,
 			);
 			name = ShopSmart;
 			packageProductDependencies = (

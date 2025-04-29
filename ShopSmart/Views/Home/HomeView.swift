@@ -7,49 +7,39 @@
 
 import SwiftUI
 
-@MainActor
-final class MainViewModel: ObservableObject {
-    @Published var user: UserModel? = nil
+struct HomeView: View {
+    @StateObject private var userVM = UserViewModel()
+    @StateObject private var listsVM = ShoppingListsViewModel()
     
-    func loadCurrentUser() async {
-        do {
-            let auth = try AuthenticationManager.shared.getAuthenticatedUser()
-            self.user = try await UserManager.shared.getUser(userId: auth.userId)
-        } catch {
-            print("Load user failed: \(error)")
-        }
-    }
-}
-
-struct MainView: View {
-    @StateObject private var viewModel = MainViewModel()
-    @State private var searchText = ""
     @Binding var showAuthenticationView: Bool
     @State private var showProfileSettingsSheetView = false
     @State private var showShoppingListSheetView = false
     @State private var showCreateShoppingListSheetView = false
+    @State private var searchText = ""
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
+            ZStack(alignment: .bottom) {
                 ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(0..<5) { _ in
-                            ShoppingListView()
-                                .padding(.vertical, 8)
+                    VStack(spacing: 8) {
+                        ForEach(listsVM.lists.map { ShoppingListRowViewModel(model: $0) }) { rowVM in
+                            ShoppingListRowView(vm: rowVM)
+                                .onTapGesture {
+                                    showShoppingListSheetView = true
+                                }
                         }
                     }
-                    .padding(.horizontal, 24)
                 }
-                
-                Button {
-                    showCreateShoppingListSheetView = true
-                } label: {
-                    CreateShoppingListButtonView()
+                HStack {
+                    Spacer()
+                    
+                    Button {
+                        showCreateShoppingListSheetView = true
+                    } label: {
+                        CreateShoppingListButtonView()
+                    }
+                    .padding(.bottom, 24)
                 }
-            }
-            .task {
-                await viewModel.loadCurrentUser()
             }
             .navigationTitle("🛒 ShopSmart")
             .navigationBarTitleDisplayMode(.inline)
@@ -63,10 +53,29 @@ struct MainView: View {
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer)
+            .padding(.horizontal, 24)
+            .task {
+                await userVM.loadCurrentUser()
+                await listsVM.loadLists()
+            }
+            .alert("Error", isPresented: .constant(listsVM.errorMessage != nil)) {
+                Button("OK", role: .cancel) { listsVM.errorMessage = nil }
+            } message: {
+                Text(listsVM.errorMessage ?? "")
+            }
+            .sheet(
+                isPresented: $showCreateShoppingListSheetView,
+                onDismiss: {
+                    Task { await listsVM.loadLists() }
+                }
+            ) {
+                CreateShoppingListSheetView()
+                    .presentationDetents([.fraction(0.2)])
+            }
             .sheet(
                 isPresented: $showProfileSettingsSheetView,
                 onDismiss: {
-                    Task { await viewModel.loadCurrentUser() }
+                    Task { await userVM.loadCurrentUser() }
                 }
             ) {
                 ProfileSettingsSheetView(showAuthenticationView: $showAuthenticationView)
@@ -77,13 +86,12 @@ struct MainView: View {
                     AuthenticationView(showAuthenticationView: $showAuthenticationView)
                 }
             }
-            .padding(.horizontal, 24)
         }
     }
     
     @ViewBuilder
     private var profilePictureView: some View {
-        if let photoUrl = viewModel.user?.profileImagePathUrl,
+        if let photoUrl = userVM.user?.profileImagePathUrl,
            let url = URL(string: photoUrl) {
             AsyncImage(url: url) { phase in
                 switch phase {
@@ -116,5 +124,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView(showAuthenticationView: .constant(false))
+    HomeView(showAuthenticationView: .constant(false))
 }

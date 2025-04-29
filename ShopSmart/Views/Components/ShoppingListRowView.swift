@@ -7,11 +7,8 @@
 
 import SwiftUI
 
-struct ShoppingListView: View {
-    var emoji: String = "🛒"
-    var name: String = "Shopping List"
-    var date: Date = Date()
-    var nOfItems: Int = 7
+struct ShoppingListRowView: View {
+    @ObservedObject var vm: ShoppingListRowViewModel
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -21,33 +18,38 @@ struct ShoppingListView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            Text(emoji)
+            Text(vm.emoji)
                 .font(.system(size: 36))
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(name)
+                Text(vm.name)
                     .font(.system(size: 17, weight: .semibold))
                 
                 HStack(alignment: .center, spacing: 4) {
-                    Text(dateFormatter.string(from: date))
+                    Text(dateFormatter.string(from: vm.date ?? Date()))
                         .font(.system(size: 12))
                     
                     Text("•")
                         .font(.system(size: 12))
                     
-                    Text("\(nOfItems) items")
+                    Text("\(vm.nOfItems) items")
                         .font(.system(size: 12))
                     
                     Text("•")
                         .font(.system(size: 12))
                     
                     HStack(alignment: .center, spacing: -8) {
-                        Image(systemName: "person.circle.fill")
-                            .foregroundStyle(.red)
-                        Image(systemName: "person.circle.fill")
-                            .foregroundStyle(.green)
-                        Image(systemName: "person.circle.fill")
-                            .foregroundStyle(.blue)
+                        ForEach(vm.collaboratorAvatars, id: \.self) { url in
+                            AsyncImage(url: url) { img in
+                                img.resizable()
+                                    .frame(width:32, height:32)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                Circle().fill(Color.gray).frame(width:32, height:32)
+                            }
+                            .frame(width:24, height:24)
+                            .clipShape(Circle())
+                        }
                     }
                     .padding(0)
                 }
@@ -79,8 +81,4 @@ struct ShoppingListView: View {
             
         )
     }
-}
-
-#Preview {
-    ShoppingListView()
 }

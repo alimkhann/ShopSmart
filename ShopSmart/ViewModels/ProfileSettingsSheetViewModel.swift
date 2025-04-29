@@ -123,6 +123,22 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             try await StorageManager.shared.deleteImage(path: path)
         }
         
+        let lists = try await ShoppingListsManager.shared.getLists(for: user.userId)
+        
+        for list in lists {
+            guard let listId = list.listId else { continue }
+            
+            let items = try await ShoppingListsManager.shared.getItems(listId: listId)
+            
+            for item in items {
+                let itemId = item.itemId
+                
+                try await ShoppingListsManager.shared.deleteItem(itemId: itemId, listId: listId)
+            }
+            
+            try await ShoppingListsManager.shared.deleteList(listId: listId)
+        }
+        
         try await UserManager.shared.deleteUser(userId: user.userId)
         try await AuthenticationManager.shared.deleteAccount()
     }
