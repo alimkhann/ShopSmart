@@ -12,6 +12,7 @@ final class SignInViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var isSigningIn = false
+    @Published var errorMessage: String?
     
     func signIn() async throws {
         guard !isSigningIn else { return }
@@ -23,7 +24,14 @@ final class SignInViewModel: ObservableObject {
         isSigningIn = true
         defer { isSigningIn = false }
         
-        try await AuthenticationManager.shared.signIn(email: email, password: password)
+        do {
+            debugPrint("ℹ️ [\(Self.self)] signing in…")
+            let result = try await AuthenticationManager.shared.signIn(email: email, password: password)
+            debugPrint("✅ [\(Self.self)] signed in successfully!: \(result.userId)")
+        } catch {
+            debugPrint("❌ [\(Self.self)] signIn error:", error)
+            errorMessage = "Sign In failed: \(error.localizedDescription)"
+        }
     }
 }
 

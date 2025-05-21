@@ -9,24 +9,26 @@ import Foundation
 
 @MainActor
 final class ShoppingListRowViewModel: ObservableObject, Identifiable {
-    let id: String
+    let listId: String
     @Published var emoji: String
     @Published var name: String
     @Published var date: Date?
     @Published var nOfItems: Int
     @Published var collaboratorAvatars: [URL] = []
+    @Published var errorMessage: String?
     
     private let collaborators: [String]
     private let userManager = UserManager.shared
     
     init(model: ShoppingListModel) {
-        self.id = model.listId ?? UUID().uuidString
+        self.listId = model.listId!
         self.emoji = model.emoji
         self.name = model.name
         self.date = model.dateCreated
         self.nOfItems = model.numberOfItems
         self.collaborators = model.collaborators
 //        loadAvatars()
+        debugPrint("✅ [\(Self.self)] init with list \(listId)")
     }
     
 //    private func loadAvatars() {

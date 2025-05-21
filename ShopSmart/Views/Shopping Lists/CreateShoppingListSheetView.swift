@@ -53,6 +53,7 @@ struct CreateShoppingListSheetView: View {
                 Spacer()
             }
             .navigationTitle("Create A List")
+            .errorAlert($viewModel.errorMessage)
             .padding(.top, 36)
             .padding(.horizontal, 24)
         }

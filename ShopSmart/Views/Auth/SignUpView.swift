@@ -41,12 +41,8 @@ struct SignUpView: View {
                     
                     Button(action: {
                         Task {
-                            do {
-                                try await viewModel.signUp()
-                                showAuthenticationView = false
-                            } catch {
-                                print(error)
-                            }
+                            try await viewModel.signUp()
+                            showAuthenticationView = false
                         }
                     }) {
                         if viewModel.isSigningUp {
@@ -78,6 +74,7 @@ struct SignUpView: View {
                     .foregroundStyle(Color.primary)
             }
         })
+        .errorAlert($viewModel.errorMessage)
     }
 }
 

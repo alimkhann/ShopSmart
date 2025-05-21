@@ -21,8 +21,10 @@ final class ShoppingListsViewModel: ObservableObject {
         do {
             let fetchedLists = try await manager.getLists(for: userId)
             self.lists = fetchedLists
+            debugPrint("✅ Shopping lists loaded successfully.")
         } catch {
-            errorMessage = error.localizedDescription
+            debugPrint("❌ Failed to load shopping lists: [\(Self.self)] error: ", error)
+            errorMessage = "Failed to load shopping lists: \(error.localizedDescription)."
         }
     }
 }

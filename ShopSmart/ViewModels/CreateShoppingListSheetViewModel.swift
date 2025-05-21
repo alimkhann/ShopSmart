@@ -14,28 +14,26 @@ final class CreateShoppingListSheetViewModel: ObservableObject {
     @Published var pendingEmoji = ""
     @Published var pendingName = ""
     @Published var isCreating = false
-    @Published var validationError: String?
+    @Published var errorMessage: String?
+    let shoppingListsManager = ShoppingListsManager.shared
+    let authManager = AuthenticationManager.shared
     
     var canCreate: Bool {
-        !pendingName.isEmpty && pendingEmoji.count == 1
+        !pendingName.isEmpty &&
+        pendingEmoji.count == 1 &&
+        (pendingEmoji.first?.isEmoji ?? false)
     }
     
     @MainActor
     func createList() async -> Bool {
         let name  = pendingName.trimmingCharacters(in: .whitespacesAndNewlines)
         let emoji = pendingEmoji.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty else {
-            validationError = "Please enter a name for your shopping list."
-            return false
-        }
-        guard emoji.count == 1 else {
-            validationError = "Emoji must be exactly one character."
-            return false
-        }
-        guard let auth = try? AuthenticationManager.shared.getAuthenticatedUser() else {
-            validationError = "Authentication error. Please sign in again."
-            return false
-        }
+        
+        guard !name.isEmpty else { return false }
+        guard emoji.count == 1 else { return false }
+        guard let emojiChar = emoji.first, emojiChar.isEmoji else { return false }
+        
+        guard let auth = try? authManager.getAuthenticatedUser() else { return false }
         
         let newList = ShoppingListModel(
             name: name,
@@ -48,17 +46,16 @@ final class CreateShoppingListSheetViewModel: ObservableObject {
         defer { isCreating = false }
         
         do {
-            try Firestore.firestore()
-                .collection("lists")
-                .addDocument(from: newList)
+            _ = try await shoppingListsManager.createList(list: newList)
+            debugPrint("✅ [\(Self.self)] Shopping list created: \(newList.name)")
             
             pendingName = ""
             pendingEmoji = ""
             return true
         } catch {
-            validationError = "Unable to create list: \(error.localizedDescription)"
+            debugPrint("❌ Failed to create shopping list: [\(Self.self)] error:", error)
+            errorMessage = "Failed to create list: \(error.localizedDescription)"
             return false
         }
     }
 }
-

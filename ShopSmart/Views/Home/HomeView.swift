@@ -30,6 +30,7 @@ struct HomeView: View {
                         }
                     }
                 }
+                
                 HStack {
                     Spacer()
                     
@@ -58,11 +59,8 @@ struct HomeView: View {
                 await userVM.loadCurrentUser()
                 await listsVM.loadLists()
             }
-            .alert("Error", isPresented: .constant(listsVM.errorMessage != nil)) {
-                Button("OK", role: .cancel) { listsVM.errorMessage = nil }
-            } message: {
-                Text(listsVM.errorMessage ?? "")
-            }
+            .errorAlert($listsVM.errorMessage)
+            .errorAlert($userVM.errorMessage)
             .sheet(item: $selectedListRow, onDismiss: {
                 Task { await listsVM.loadLists() }
             }) { rowVM in

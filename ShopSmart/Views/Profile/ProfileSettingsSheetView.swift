@@ -89,6 +89,7 @@ struct ProfileSettingsSheetView: View {
             }
             .padding()
             .task { await viewModel.loadCurrentUser() }
+            .errorAlert($viewModel.errorMessage)
             .navigationTitle("Profile Settings")
         }
     }

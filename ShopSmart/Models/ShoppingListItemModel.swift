@@ -8,18 +8,24 @@
 import Foundation
 import FirebaseFirestore
 
-struct ShoppingListItemModel: Codable, Identifiable {
-    @DocumentID var id: String?
-    let itemId: String
+struct ShoppingListItemModel: Codable, Identifiable, Equatable {
+    @DocumentID var itemId: String?
     var name: String
     var emoji: String
     var addedBy: String
     var price: Double
-    var numberOfItems: Int
+    var numberOfTheItem: Int
     var category: String?
     var isBought: Bool = false
     let dateCreated: Date?
-    let dateUpdated: Date?
+    var dateUpdated: Date?
+    
+    var id: String {
+        guard let itemId = itemId else {
+            preconditionFailure("Firestore did not provide a document ID")
+        }
+        return itemId
+    }
     
     init(
         itemId: String,
@@ -27,7 +33,7 @@ struct ShoppingListItemModel: Codable, Identifiable {
         emoji: String,
         addedBy: String,
         price: Double,
-        numberOfItems: Int = 1,
+        numberOfTheItem: Int = 1,
         category: String? = nil,
         isBought: Bool = false,
         dateCreated: Date = Date(),
@@ -38,7 +44,7 @@ struct ShoppingListItemModel: Codable, Identifiable {
         self.emoji = emoji
         self.addedBy = addedBy
         self.price = price
-        self.numberOfItems = numberOfItems
+        self.numberOfTheItem = numberOfTheItem
         self.category = category
         self.isBought = isBought
         self.dateCreated = dateCreated

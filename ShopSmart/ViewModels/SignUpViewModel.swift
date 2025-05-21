@@ -14,6 +14,7 @@ final class SignUpViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var isSigningUp = false
+    @Published var errorMessage: String?
     
     func signUp() async throws {
         guard !isSigningUp else { return }
@@ -31,8 +32,14 @@ final class SignUpViewModel: ObservableObject {
             password: password
         )
         let user = UserModel(auth: authDataResult)
-        try await UserManager.shared.createNewUser(user: user)
-        
-        cachedUsername = username
+        do {
+            debugPrint("ℹ️ [\(Self.self)] signing up…")
+            try await UserManager.shared.createNewUser(user: user)
+            debugPrint("✅ [\(Self.self)] signUp succeeded: \(user.userId)")
+            cachedUsername = username
+        } catch {
+            debugPrint("❌ [\(Self.self)] signUp error:", error)
+            
+        }
     }
 }

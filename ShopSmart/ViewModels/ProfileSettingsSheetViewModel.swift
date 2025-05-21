@@ -16,6 +16,9 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
     @Published var isUploadingImage = false
     @Published var pendingImageData: Data? = nil
     @Published var pendingUsername: String? = nil
+    @Published var errorMessage: String?
+    let storageManager = StorageManager.shared
+    let userManager = UserManager.shared
     
     var canSaveAll: Bool {
         let nameChanged = pendingUsername != nil && pendingUsername != user?.username
@@ -30,8 +33,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             let auth = try AuthenticationManager.shared.getAuthenticatedUser()
             self.user = try await UserManager.shared.getUser(userId: auth.userId)
             self.pendingUsername = cachedUsername
+            debugPrint("✅ [\(Self.self)] User loaded: \(auth.userId)")
         } catch {
-            print("Load user failed: \(error)")
+            debugPrint("❌ Profile image deletion failed: [\(Self.self)] error:", error)
+            errorMessage = "Failed to delete profile image: \(error.localizedDescription)."
         }
     }
     
@@ -46,8 +51,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
                 compressed = data
             }
             pendingImageData = compressed
+            debugPrint("✅ [\(Self.self)] Image picked.")
         } catch {
-            print("Image load failed: \(error)")
+            debugPrint("❌ Image selection failed: [\(Self.self)] error:", error)
+            errorMessage = "Image selection failed: \(error.localizedDescription)."
         }
     }
     
@@ -57,8 +64,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
            let oldPath = user.profileImagePath {
             do {
                 try await StorageManager.shared.deleteImage(path: oldPath)
+                debugPrint("✅ [\(Self.self)] Old profile image deleted.")
             } catch {
-                print("Failed deleting old image: \(error)")
+                debugPrint("❌ Old profile image deletion failed: [\(Self.self)] error:", error)
+                errorMessage = "Failed to delete old profile image: \(error.localizedDescription)."
             }
         }
         
@@ -69,8 +78,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
                 let (path, _) = try await StorageManager.shared.saveImage(data: data, userId: user.userId)
                 let url = try await StorageManager.shared.getUrlForImage(path: path)
                 try await UserManager.shared.updateUserProfileImagePath(userId: user.userId, path: path, url: url.absoluteString)
+                debugPrint("✅ [\(Self.self)] New profile image uploaded.")
             } catch {
-                print("Upload failed: \(error)")
+                debugPrint("❌ New profile image upload failed: [\(Self.self)] error:", error)
+                errorMessage = "Failed to upload new profile image: \(error.localizedDescription)."
             }
             pendingImageData = nil
         }
@@ -81,8 +92,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             do {
                 try await UserManager.shared.updateUsername(userId: user.userId, username: newName)
                 cachedUsername = newName
+                debugPrint("✅ [\(Self.self)] Username updated.")
             } catch {
-                print("Username update failed: \(error)")
+                debugPrint("❌ Username update failed: [\(Self.self)] error:", error)
+                errorMessage = "Failed to update username: \(error.localizedDescription)."
             }
             pendingUsername = nil
         }
@@ -92,8 +105,10 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             do {
                 self.user = try await UserManager.shared.getUser(userId: user.userId)
                 self.pendingUsername = self.user?.username
+                debugPrint("✅ [\(Self.self)] User reloaded.")
             } catch {
-                print("Reload user failed: \(error)")
+                debugPrint("❌ User reload failed: [\(Self.self)] error:", error)
+                errorMessage = "Failed to reload user: \(error.localizedDescription)."
             }
         }
     }
@@ -106,21 +121,33 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             try await UserManager.shared.updateUserProfileImagePath(userId: user.userId, path: nil, url: nil)
             self.user = try await UserManager.shared.getUser(userId: user.userId)
             self.pendingImageData = nil
+            debugPrint("✅ Profile image deleted: [\(Self.self)]")
         } catch {
-            print("Delete failed: \(error)")
+            debugPrint("❌ Profile image deletion failed: [\(Self.self)] error:", error)
+            errorMessage = "Failed to delete profile image: \(error.localizedDescription)."
         }
     }
     
     func logOut() throws {
+        guard let user = user, let _ = user.profileImagePath else { return }
+        
+        if user.username != nil {
+            UserDefaults.standard.removeObject(forKey: "cachedUsername")
+        }
+        
         try AuthenticationManager.shared.signOut()
+        debugPrint("✅ Logged out: [\(Self.self)]")
     }
     
     func deleteAccount() async throws {
         guard let user = user else { throw URLError(.badServerResponse) }
         
-        // delete pfp from storage
         if let path = user.profileImagePath {
             try await StorageManager.shared.deleteImage(path: path)
+        }
+        
+        if user.username != nil {
+            UserDefaults.standard.removeObject(forKey: "cachedUsername")
         }
         
         let lists = try await ShoppingListsManager.shared.getLists(for: user.userId)
@@ -131,7 +158,7 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
             let items = try await ShoppingListsManager.shared.getItems(listId: listId)
             
             for item in items {
-                guard let itemId = item.id else { continue }
+                guard let itemId = item.itemId else { continue }
                 try await ShoppingListsManager.shared.deleteItem(itemId: itemId, listId: listId)
             }
             
@@ -140,6 +167,7 @@ final class ProfileSettingsSheetViewModel: ObservableObject {
         
         try await UserManager.shared.deleteUser(userId: user.userId)
         try await AuthenticationManager.shared.deleteAccount()
+        debugPrint("✅ [\(Self.self)] Account deleted.")
     }
 }
 

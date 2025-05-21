@@ -6,108 +6,228 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 @MainActor
 final class ShoppingListSheetViewModel: ObservableObject {
     let listId: String
+    
     @Published var items: [ShoppingListItemModel] = []
-    let userId = try! AuthenticationManager.shared.getAuthenticatedUser().userId
+    @Published var selectedIDs: Set<String> = []
+    @Published var isLoading = false
+    @Published var isAdding = false
+    @Published var errorMessage: String?
+    
+    private let manager = ShoppingListsManager.shared
     
     init(listId: String) {
         self.listId = listId
     }
     
     func loadItems() async {
+        isLoading = true; defer { isLoading = false }
+        
         do {
-            items = try await ShoppingListsManager.shared.getItems(listId: listId)
+            let fetched = try await manager.getItems(listId: listId)
+            items = fetched
+            debugPrint("✅ [\(Self.self)] loadItems succeeded: \(fetched.count) items")
         } catch {
-            print("Error loading items: \(error.localizedDescription)")
+            debugPrint("❌ [\(Self.self)] loadItems error:", error)
+            errorMessage = "Could not load items: \(error.localizedDescription)"
         }
     }
     
-    func addItem() async throws {
-        let newItem = ShoppingListItemModel(
-            itemId: UUID().uuidString,
-            name: "New Item",
-            emoji: "🆕",
-            addedBy: "\(userId)",
-            price: 0.00,
-            dateCreated: Date()
-        )
-        
+    func addItem(
+        name: String,
+        emoji: String,
+        count: Int,
+        price: Double,
+        category: String?
+    ) async {
+        isAdding = true; defer { isAdding = false }
         do {
-            try await ShoppingListsManager.shared.addItem(item: newItem, listId: listId)
+            let auth = try AuthenticationManager.shared.getAuthenticatedUser()
+            var newItem = ShoppingListItemModel(
+                itemId: "",
+                name: name,
+                emoji: emoji,
+                addedBy: auth.userId,
+                price: price,
+                numberOfTheItem: count,
+                category: category,
+                isBought: false,
+                dateCreated: Date(),
+                dateUpdated: nil
+            )
+            let newID = try await manager.addItem(item: newItem, listId: listId)
+            newItem.itemId = newID
             items.append(newItem)
-            try await ShoppingListsManager.shared.updateNumberOfItems(listId: listId, newNumberOfItems: items.count)
+            debugPrint("✅ [\(Self.self)] addItem: \(newID)")
         } catch {
-            print("Failed to add item: \(error.localizedDescription)")
+            debugPrint("❌ [\(Self.self)] addItem error:", error)
+            errorMessage = "Add failed: \(error.localizedDescription)"
+        }
+    }
+    
+    func updateItem(
+        id: String,
+        emoji: String,
+        name: String,
+        count: Int,
+        price: Double,
+        category: String?,
+        isBought: Bool
+    ) async {
+        do {
+            let data: [String: Any] = [
+                "emoji": emoji,
+                "name": name,
+                "number_of_items": count,
+                "price": price,
+                "category": category as Any,
+                "is_bought": isBought,
+                "date_updated": FieldValue.serverTimestamp()
+            ]
+            try await manager.updateItem(itemId: id, listId: listId, data: data)
+            if let idx = items.firstIndex(where: { $0.id == id }) {
+                items[idx].emoji = emoji
+                items[idx].name = name
+                items[idx].numberOfTheItem = count
+                items[idx].price = price
+                items[idx].category = category
+                items[idx].isBought = isBought
+                items[idx].dateUpdated = Date()
+            }
+            debugPrint("✅ [\(Self.self)] updateItem: \(id)")
+        } catch {
+            debugPrint("❌ [\(Self.self)] updateItem error:", error)
+            errorMessage = "Update failed: \(error.localizedDescription)"
+        }
+    }
+    
+    func deleteSelected() async {
+        let toDelete = Array(selectedIDs)
+        for id in toDelete {
+            do {
+                try await manager.deleteItem(itemId: id, listId: listId)
+                items.removeAll { $0.id == id }
+                selectedIDs.remove(id)
+                debugPrint("✅ [\(Self.self)] deleteItem: \(id)")
+            } catch {
+                debugPrint("❌ [\(Self.self)] deleteSelected error:", error)
+                errorMessage = "Delete failed: \(error.localizedDescription)"
+            }
         }
     }
 }
 
-
 struct ShoppingListSheetView: View {
     @ObservedObject var rowVM: ShoppingListRowViewModel
     @StateObject private var vm: ShoppingListSheetViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var showAddPopOver: Bool = false
+    @State private var editTarget: ShoppingListItemModel?
     
     init(rowVM: ShoppingListRowViewModel) {
         self.rowVM = rowVM
-        _vm = StateObject(wrappedValue: ShoppingListSheetViewModel(listId: rowVM.id))
+        _vm = StateObject(wrappedValue: ShoppingListSheetViewModel(listId: rowVM.listId))
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                HStack(spacing: 12) {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack {
                     Text(rowVM.emoji)
-                        .font(.system(size: 36))
+                        .font(.largeTitle)
+                    
                     Text(rowVM.name)
-                        .font(.title2.bold())
+                        .font(.title2).bold()
+                    
                     Spacer()
+                    
+                    HStack (spacing: 16) {
+                        Button {
+                            showAddPopOver = true
+                        } label: {
+                            Image(systemName: "plus.circle")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                        }
+                        
+                        Button(role: .destructive) {
+                            Task { await vm.deleteSelected() }
+                        } label: {
+                            Image(systemName: "trash")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                        }
+                        .disabled(vm.selectedIDs.isEmpty)
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.top)
+                .padding()
+                .background(Color(UIColor.systemBackground))
                 
                 Divider()
                 
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(vm.items) { item in
-                            HStack(spacing: 12) {
-                                Text(item.emoji)
-                                    .font(.title3)
-                                Text(item.name)
-                                    .font(.body)
-                                Spacer()
-                                Text(String(format: "%.2f", item.price))
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                List(selection: $vm.selectedIDs) {
+                    ForEach(vm.items) { item in
+                        HStack {
+                            Text(item.emoji)
+                            Text(item.name)
+                            Spacer()
+                            Text(String(format: "%.2f", item.price))
+                                .foregroundStyle(.secondary)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            editTarget = item
                         }
                     }
-                    .padding(.horizontal)
                 }
-
-                Spacer()
-
-                Button {
-                    Task {
-                        try! await vm.addItem()
+                .listStyle(.insetGrouped)
+                .environment(\.editMode, .constant(vm.selectedIDs.isEmpty ? .inactive : .active))
+            }
+            .navigationTitle("")
+            .navigationBarHidden(true)
+            .onAppear { Task { await vm.loadItems() } }
+            .errorAlert($vm.errorMessage)
+            
+            if showAddPopOver {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation { showAddPopOver = false }
                     }
-                } label: {
-                    PrimaryButtonStyleView(content: "Add Item")
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
+                
+                AddItemPopOverView(parent: vm, onCancel: {
+                    withAnimation { showAddPopOver = false }
+                })
+                    .frame(width: 300, height: 350)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(12)
+                    .shadow(radius: 20)
+                    .transition(.scale.combined(with: .opacity))
             }
-            .task {
-                await vm.loadItems()
+            
+            if let item = editTarget {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation { editTarget = nil }
+                    }
+                
+                EditItemPopOverView(parent: vm, item: item, onCancel: {
+                    withAnimation { editTarget = nil }
+                })
+                .frame(width: 300, height: 350)
+                .background(.ultraThinMaterial)
+                .cornerRadius(12)
+                .shadow(radius: 20)
+                .transition(.scale.combined(with: .opacity))
             }
-            .navigationTitle("Shopping List")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .animation(.easeInOut, value: showAddPopOver)
+        .animation(.easeInOut, value: editTarget)
     }
 }

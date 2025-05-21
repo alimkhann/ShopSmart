@@ -79,5 +79,6 @@ struct ShoppingListRowView: View {
                 .stroke(Color(red: 0.94, green: 0.94, blue: 0.94), lineWidth: 01)
             
         )
+        .errorAlert($vm.errorMessage)
     }
 }

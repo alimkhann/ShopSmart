@@ -20,11 +20,11 @@ final class ShoppingListsManager {
     }
     
     private func itemCollection(listId: String) -> CollectionReference {
-      listDocument(listId: listId).collection("items")
+        listDocument(listId: listId).collection("items")
     }
     
     private func itemDocument(listId: String, itemId: String) -> DocumentReference {
-      itemCollection(listId: listId).document(itemId)
+        itemCollection(listId: listId).document(itemId)
     }
     
     private let encoder: Firestore.Encoder = {
@@ -41,26 +41,43 @@ final class ShoppingListsManager {
     
     // MARK: List CRUD
     
-    func createList(list: ShoppingListModel) throws -> String {
-        let ref = try listCollection.addDocument(from: list)
-          return ref.documentID
+    func createList(list: ShoppingListModel) async throws -> String {
+        let docRef = try listCollection.addDocument(from: list, encoder: encoder)
+        let newID = docRef.documentID
+        debugPrint("✅ [\(Self.self)] createList succeeded, new ID: \(newID)")
+        return newID
+    }
+    
+    func getListId(from list: ShoppingListModel) throws -> String {
+        guard let id = list.listId else {
+            debugPrint("❌ [\(Self.self)] getListId failed: listId is nil")
+            throw URLError(.badURL)
+        }
+        debugPrint("✅ [\(Self.self)] getListId: \(id)")
+        return id
     }
     
     func getList(listId: String) async throws -> ShoppingListModel {
-        try await listDocument(listId: listId).getDocument(as: ShoppingListModel.self, decoder: decoder)
+        let model = try await listDocument(listId: listId)
+            .getDocument(as: ShoppingListModel.self, decoder: decoder)
+        debugPrint("✅ [\(Self.self)] getList succeeded: \(listId)")
+        return model
     }
     
     func getLists(for userId: String) async throws -> [ShoppingListModel] {
         let snapshot = try await listCollection
-          .whereField("collaborators", arrayContains: userId)
-          .getDocuments()
-        return try snapshot.documents.map {
-          try $0.data(as: ShoppingListModel.self, decoder: decoder)
+            .whereField("collaborators", arrayContains: userId)
+            .getDocuments()
+        let lists = try snapshot.documents.map {
+            try $0.data(as: ShoppingListModel.self, decoder: decoder)
         }
-      }
+        debugPrint("✅ [\(Self.self)] getLists succeeded: \(lists.count) lists for user \(userId)")
+        return lists
+    }
     
     func updateList(listId: String, data: [String: Any]) async throws {
         try await listDocument(listId: listId).updateData(data)
+        debugPrint("✅ [\(Self.self)] updateList succeeded: \(listId)")
     }
     
     func updateListName(listId: String, newName: String) async throws {
@@ -109,25 +126,48 @@ final class ShoppingListsManager {
     
     func deleteList(listId: String) async throws {
         try await listDocument(listId: listId).delete()
+        debugPrint("✅ [\(Self.self)] deleteList succeeded: \(listId)")
     }
     
     // MARK: Item CRUD
     
-    func addItem(item: ShoppingListItemModel, listId: String) async throws {
-        try itemCollection(listId: listId)
-              .document(item.itemId)
-              .setData(from: item, merge: false, encoder: encoder)
+    func addItem(item: ShoppingListItemModel, listId: String) async throws -> String {
+        let colRef = itemCollection(listId: listId)
+        let newDoc = colRef.document()
+        var withID = item
+        withID.itemId = newDoc.documentID
+        try newDoc.setData(from: withID, encoder: encoder)
+        debugPrint("✅ [\(Self.self)] addItem succeeded: \(String(describing: withID.itemId)) to list \(listId)")
+        
+        let count = try await getNumberOfItems(listId: listId)
+        try await updateNumberOfItems(listId: listId, newNumberOfItems: count + 1)
+        
+        guard let itemId = withID.itemId else {
+            debugPrint("❌ [\(Self.self)] addItem missing itemId after write")
+            throw URLError(.unknown)
+        }
+        
+        return itemId
     }
     
     func getItems(listId: String) async throws -> [ShoppingListItemModel] {
         let snapshot = try await itemCollection(listId: listId).getDocuments()
-        return try snapshot.documents.map { doc in
-            try doc.data(as: ShoppingListItemModel.self, decoder: decoder)
+        let items = try snapshot.documents.map {
+            try $0.data(as: ShoppingListItemModel.self, decoder: decoder)
         }
+        debugPrint("✅ [\(Self.self)] getItems succeeded: \(items.count) for list \(listId)")
+        return items
+    }
+    
+    func getNumberOfItems(listId: String) async throws -> Int {
+        let count = try await getItems(listId: listId).count
+        debugPrint("✅ [\(Self.self)] getNumberOfItems: \(count) for list \(listId)")
+        return count
     }
     
     func updateItem(itemId: String, listId: String, data: [String: Any]) async throws {
-        try await listDocument(listId: listId).collection("items").document(itemId).updateData(data)
+        try await itemCollection(listId: listId).document(itemId).updateData(data)
+        debugPrint("✅ [\(Self.self)] updateItem succeeded: \(itemId) in list \(listId)")
     }
     
     func updateItemName(itemId: String, listId: String, newName: String) async throws {
@@ -166,9 +206,9 @@ final class ShoppingListsManager {
         try await updateItem(itemId: itemId, listId: listId, data: data)
     }
     
-    func updateItemNumberOfItems(itemId: String, listId: String, newNumberOfItems: Int) async throws {
+    func updateItemNumberOfTheItem(itemId: String, listId: String, newNumberOfTheItem: Int) async throws {
         let data : [String: Any] = [
-            "number_of_items" : newNumberOfItems,
+            "number_of_the_item" : newNumberOfTheItem,
             "date_updated" : FieldValue.serverTimestamp()
         ]
         
@@ -203,6 +243,10 @@ final class ShoppingListsManager {
     }
     
     func deleteItem(itemId: String, listId: String) async throws {
-        try await listDocument(listId: listId).collection("items").document(itemId).delete()
+        try await itemCollection(listId: listId).document(itemId).delete()
+        debugPrint("✅ [\(Self.self)] deleteItem succeeded: \(itemId) from list \(listId)")
+        
+        let count = try await getNumberOfItems(listId: listId)
+        try await updateNumberOfItems(listId: listId, newNumberOfItems: count - 1)
     }
 }
