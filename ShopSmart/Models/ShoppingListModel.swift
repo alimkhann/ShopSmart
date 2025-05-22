@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct ShoppingListModel: Codable {
+struct ShoppingListModel: Codable, Identifiable {
     @DocumentID var listId: String?
     var name: String
     var emoji: String
@@ -21,6 +21,13 @@ struct ShoppingListModel: Codable {
     var items: [ShoppingListItemModel]?
     var numberOfItems: Int
     
+    var id: String {
+        guard let listId = listId else {
+            preconditionFailure("Firestore did not provide a document ID")
+        }
+        return listId
+    }
+    
     init(
         name: String,
         emoji: String,
@@ -32,7 +39,7 @@ struct ShoppingListModel: Codable {
         dateUpdated: Date? = nil,
         items: [ShoppingListItemModel]? = nil,
         numberOfItems: Int = 0
-      ) {
+    ) {
         self.name = name
         self.emoji = emoji
         self.ownerId = ownerId
@@ -43,5 +50,5 @@ struct ShoppingListModel: Codable {
         self.dateUpdated = dateUpdated
         self.items = items
         self.numberOfItems = numberOfItems
-      }
+    }
 }

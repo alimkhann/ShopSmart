@@ -140,7 +140,7 @@ final class ShoppingListsManager {
         debugPrint("✅ [\(Self.self)] addItem succeeded: \(String(describing: withID.itemId)) to list \(listId)")
         
         let count = try await getNumberOfItems(listId: listId)
-        try await updateNumberOfItems(listId: listId, newNumberOfItems: count + 1)
+        try await updateNumberOfItems(listId: listId, newNumberOfItems: count)
         
         guard let itemId = withID.itemId else {
             debugPrint("❌ [\(Self.self)] addItem missing itemId after write")
@@ -247,6 +247,6 @@ final class ShoppingListsManager {
         debugPrint("✅ [\(Self.self)] deleteItem succeeded: \(itemId) from list \(listId)")
         
         let count = try await getNumberOfItems(listId: listId)
-        try await updateNumberOfItems(listId: listId, newNumberOfItems: count - 1)
+        try await updateNumberOfItems(listId: listId, newNumberOfItems: count)
     }
 }

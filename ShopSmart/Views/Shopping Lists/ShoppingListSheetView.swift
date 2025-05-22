@@ -126,8 +126,10 @@ struct ShoppingListSheetView: View {
     @StateObject private var vm: ShoppingListSheetViewModel
     @Environment(\.dismiss) private var dismiss
     
+    @State private var showEditList = false
     @State private var showAddPopOver: Bool = false
     @State private var editTarget: ShoppingListItemModel?
+    @State private var isSelecting = false
     
     init(rowVM: ShoppingListRowViewModel) {
         self.rowVM = rowVM
@@ -155,14 +157,32 @@ struct ShoppingListSheetView: View {
                                 .frame(width: 24, height: 24)
                         }
                         
-                        Button(role: .destructive) {
-                            Task { await vm.deleteSelected() }
+                        Button {
+                            showEditList = true
                         } label: {
-                            Image(systemName: "trash")
+                            Image(systemName: "pencil.circle")
                                 .resizable()
                                 .frame(width: 24, height: 24)
                         }
-                        .disabled(vm.selectedIDs.isEmpty)
+                        
+                        Button(role: .destructive) {
+                            if isSelecting {
+                                if vm.selectedIDs.isEmpty {
+                                    isSelecting = false
+                                } else {
+                                    Task {
+                                        await vm.deleteSelected()
+                                        isSelecting = false
+                                    }
+                                }
+                            } else {
+                                isSelecting = true
+                            }
+                        } label: {
+                            Image(systemName: isSelecting ? "trash.fill" : "trash")
+                                .resizable().frame(width: 24, height: 24)
+                        }
+                        .disabled(vm.items.isEmpty)
                     }
                 }
                 .padding()
@@ -181,12 +201,14 @@ struct ShoppingListSheetView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            editTarget = item
+                            if isSelecting {} else {
+                                editTarget = item
+                            }
                         }
                     }
                 }
                 .listStyle(.insetGrouped)
-                .environment(\.editMode, .constant(vm.selectedIDs.isEmpty ? .inactive : .active))
+                .environment(\.editMode, .constant(isSelecting ? .active : .inactive))
             }
             .navigationTitle("")
             .navigationBarHidden(true)
@@ -203,11 +225,11 @@ struct ShoppingListSheetView: View {
                 AddItemPopOverView(parent: vm, onCancel: {
                     withAnimation { showAddPopOver = false }
                 })
-                    .frame(width: 300, height: 350)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(12)
-                    .shadow(radius: 20)
-                    .transition(.scale.combined(with: .opacity))
+                .frame(width: 300, height: 350)
+                .background(.ultraThinMaterial)
+                .cornerRadius(12)
+                .shadow(radius: 20)
+                .transition(.scale.combined(with: .opacity))
             }
             
             if let item = editTarget {
@@ -226,6 +248,17 @@ struct ShoppingListSheetView: View {
                 .shadow(radius: 20)
                 .transition(.scale.combined(with: .opacity))
             }
+        }
+        .sheet(isPresented: $showEditList) {
+            EditShoppingListSheetView(
+                listId: rowVM.listId,
+                name: rowVM.name,
+                emoji: rowVM.emoji
+            ) {
+                showEditList = false
+                Task { await vm.loadItems() }
+            }
+            .presentationDetents([.fraction(0.35)])
         }
         .animation(.easeInOut, value: showAddPopOver)
         .animation(.easeInOut, value: editTarget)

@@ -70,15 +70,9 @@ struct ShoppingListRowView: View {
         .padding(.leading, 4)
         .padding(.trailing, 8)
         .padding(.vertical, 8)
-        .frame(width: 370, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .cornerRadius(8)
         .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 2)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .inset(by: 0.25)
-                .stroke(Color(red: 0.94, green: 0.94, blue: 0.94), lineWidth: 01)
-            
-        )
         .errorAlert($vm.errorMessage)
     }
 }

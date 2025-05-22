@@ -29,9 +29,7 @@ final class CreateShoppingListSheetViewModel: ObservableObject {
         let name  = pendingName.trimmingCharacters(in: .whitespacesAndNewlines)
         let emoji = pendingEmoji.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard !name.isEmpty else { return false }
-        guard emoji.count == 1 else { return false }
-        guard let emojiChar = emoji.first, emojiChar.isEmoji else { return false }
+        guard canCreate else { return false }
         
         guard let auth = try? authManager.getAuthenticatedUser() else { return false }
         

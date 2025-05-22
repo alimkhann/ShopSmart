@@ -13,75 +13,81 @@ struct HomeView: View {
     
     @Binding var showAuthenticationView: Bool
     @State private var showProfileSettingsSheetView = false
-    @State private var selectedListRow: ShoppingListRowViewModel? = nil
     @State private var showCreateShoppingListSheetView = false
     @State private var searchText = ""
     
+    @State private var isSelectingLists = false
+    @State private var selectedListIDs: Set<String> = []
+    @State private var selectedListRow: ShoppingListRowViewModel? = nil
+    
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(listsVM.lists.map { ShoppingListRowViewModel(model: $0) }) { rowVM in
-                            ShoppingListRowView(vm: rowVM)
-                                .onTapGesture {
+            List(selection: $selectedListIDs) {
+                Section {
+                    ForEach(listsVM.lists) { list in
+                        let rowVM = ShoppingListRowViewModel(model: list)
+                        ShoppingListRowView(vm: rowVM)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if isSelectingLists {} else {
                                     selectedListRow = rowVM
                                 }
-                        }
+                            }
                     }
-                }
-                
-                HStack {
-                    Spacer()
-                    
-                    Button {
-                        showCreateShoppingListSheetView = true
-                    } label: {
-                        CreateShoppingListButtonView()
-                    }
-                    .padding(.bottom, 24)
                 }
             }
+            .listStyle(.insetGrouped)
+            .environment(\.editMode, .constant(isSelectingLists ? .active : .inactive))
+            .overlay(
+                VStack {
+                    Spacer()
+
+                    HStack(spacing: 16) {
+                        Spacer()
+
+                        DeleteShoppingListsButtonView(
+                            itemsExist: !listsVM.lists.isEmpty,
+                            isSelecting: $isSelectingLists,
+                            selectedIDs: $selectedListIDs
+                        ) {
+                            await listsVM.loadLists()
+                        }
+
+                        Button {
+                            showCreateShoppingListSheetView = true
+                        } label: {
+                            CreateShoppingListButtonView()
+                        }
+                    }
+                    .padding(.trailing)
+                    .padding(.bottom, 24)
+                }
+            )
             .navigationTitle("🛒 ShopSmart")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showProfileSettingsSheetView = true
-                    }) {
+                    Button { showProfileSettingsSheetView = true } label: {
                         profilePictureView
                     }
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer)
-            .padding(.horizontal, 24)
             .task {
                 await userVM.loadCurrentUser()
                 await listsVM.loadLists()
             }
             .errorAlert($listsVM.errorMessage)
             .errorAlert($userVM.errorMessage)
-            .sheet(item: $selectedListRow, onDismiss: {
+            .sheet(isPresented: $showCreateShoppingListSheetView, onDismiss: {
                 Task { await listsVM.loadLists() }
-            }) { rowVM in
-                ShoppingListSheetView(rowVM: rowVM)
-                  .presentationDetents([.large, .medium])
-            }
-            .sheet(
-                isPresented: $showCreateShoppingListSheetView,
-                onDismiss: {
-                    Task { await listsVM.loadLists() }
-                }
-            ) {
+            }) {
                 CreateShoppingListSheetView()
                     .presentationDetents([.fraction(0.35)])
             }
-            .sheet(
-                isPresented: $showProfileSettingsSheetView,
-                onDismiss: {
-                    Task { await userVM.loadCurrentUser() }
-                }
-            ) {
+            .sheet(isPresented: $showProfileSettingsSheetView, onDismiss: {
+                Task { await userVM.loadCurrentUser() }
+            }) {
                 ProfileSettingsSheetView(showAuthenticationView: $showAuthenticationView)
                     .presentationDetents([.fraction(0.7), .large])
             }
@@ -89,6 +95,12 @@ struct HomeView: View {
                 NavigationStack {
                     AuthenticationView(showAuthenticationView: $showAuthenticationView)
                 }
+            }
+            .sheet(item: $selectedListRow, onDismiss: {
+                Task { await listsVM.loadLists() }
+            }) { rowVM in
+                ShoppingListSheetView(rowVM: rowVM)
+                    .presentationDetents([.large, .medium])
             }
         }
     }
