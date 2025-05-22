@@ -42,9 +42,9 @@ struct HomeView: View {
                 VStack {
                     Spacer()
 
-                    HStack(spacing: 16) {
+                    HStack {
                         Spacer()
-
+                        
                         DeleteShoppingListsButtonView(
                             itemsExist: !listsVM.lists.isEmpty,
                             isSelecting: $isSelectingLists,
@@ -52,6 +52,12 @@ struct HomeView: View {
                         ) {
                             await listsVM.loadLists()
                         }
+                    }
+                    .padding(.bottom, 32)
+                    .padding(.trailing, 46)
+                    
+                    HStack {
+                        Spacer()
 
                         Button {
                             showCreateShoppingListSheetView = true
@@ -59,8 +65,8 @@ struct HomeView: View {
                             CreateShoppingListButtonView()
                         }
                     }
-                    .padding(.trailing)
                     .padding(.bottom, 24)
+                    .padding(.trailing)
                 }
             )
             .navigationTitle("🛒 ShopSmart")
